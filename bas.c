@@ -226,7 +226,7 @@ APPLICATION_START( )
 static void battery_service_application_init()
 {
     wiced_bt_gatt_status_t gatt_status;
-#if !defined(CYW20735B1) && !defined(CYW20819A1) && !defined(CYW20719B2) && !defined(CYW20721B2)
+#if !defined(CYW20735B1) && !defined(CYW20835B1) && !defined(CYW20819A1) && !defined(CYW20719B2) && !defined(CYW20721B2)
     /* Initialize wiced app */
     wiced_bt_app_init();
 #endif
@@ -285,8 +285,8 @@ static void battery_service_set_advertisement_data()
     num_elem ++;
 
     adv_elem[num_elem].advert_type  = BTM_BLE_ADVERT_TYPE_NAME_COMPLETE;
-    adv_elem[num_elem].len          = strlen((const char *)wiced_app_cfg_settings.device_name);
-    adv_elem[num_elem].p_data       = (uint8_t *)wiced_app_cfg_settings.device_name;
+    adv_elem[num_elem].len          = app_gap_device_name_len;
+    adv_elem[num_elem].p_data       = (uint8_t *)app_gap_device_name;
 
     num_elem++;
 
