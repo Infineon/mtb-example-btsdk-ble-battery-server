@@ -36,16 +36,41 @@
  * Runtime Bluetooth stack configuration parameters
  *
  */
-#include "wiced_bt_dev.h"
-#include "wiced_bt_ble.h"
-#include "wiced_bt_gatt.h"
-#include "wiced_bt_cfg.h"
+
+/* This file is applicable for all devices with BTSTACK version lower than 3.0, i.e. 20xxx and 43012C0 */
+
 #include "cycfg_gatt_db.h"
+#include "wiced_bt_cfg.h"
+#include "wiced_transport.h"
+#include "wiced_bt_stack.h"
+#include "battery_server.h"
+
+/* transport configuration */
+const wiced_transport_cfg_t  transport_cfg =
+{
+    .type = WICED_TRANSPORT_UART,
+    .cfg =
+    {
+        .uart_cfg =
+        {
+            .mode = WICED_TRANSPORT_UART_HCI_MODE,
+            .baud_rate =  HCI_UART_DEFAULT_BAUD
+        },
+    },
+    .rx_buff_pool_cfg =
+    {
+        .buffer_size = 0,
+        .buffer_count = 0
+    },
+    .p_status_handler = NULL,
+    .p_data_handler = NULL,
+    .p_tx_complete_cback = NULL
+};
 
 /*****************************************************************************
  * wiced_bt core stack configuration
  ****************************************************************************/
-const wiced_bt_cfg_settings_t wiced_app_cfg_settings =
+const wiced_bt_cfg_settings_t wiced_bt_cfg_settings =
 {
     .device_name                         = (uint8_t*)app_gap_device_name,                               /**< Local device name (NULL terminated). Use same as configurator generated string.*/
     .device_class                        = {0x20, 0x07, 0x04},                                         /**< Local device class */
@@ -209,3 +234,15 @@ const wiced_bt_cfg_buf_pool_t wiced_app_cfg_buf_pools[WICED_BT_CFG_NUM_BUF_POOLS
     { 1024,     8   },      /* Large Buffer Pool  (used for HCI ACL messages) */
     { 1024,     5   },      /* Extra Large Buffer Pool - Used for avdt media packets and miscellaneous (if not needed, set buf_count to 0) */
 };
+
+
+/*****************************************************************************
+ * app_stack_init
+ *
+ * Initialize system stack
+ *****************************************************************************/
+wiced_result_t app_stack_init()
+{
+    wiced_bt_stack_init(battery_server_management_cback, &wiced_bt_cfg_settings, wiced_app_cfg_buf_pools);
+    return WICED_BT_SUCCESS;
+}
