@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021, Cypress Semiconductor Corporation (an Infineon company) or
+ * Copyright 2016-2022, Cypress Semiconductor Corporation (an Infineon company) or
  * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
  *
  * This software, including source code, documentation and related
@@ -68,6 +68,7 @@
 typedef enum {
    BAS_BATTERY_LEVEL_IDX,
    BAS_BATTERY_LEVEL_STATUS_IDX,
+   BAS_BATTERY_LEVEL_STATUS_BROADCAST_IDX,
    BAS_ESTIMATED_SERVICE_DATE_IDX,
    BAS_BATTERY_CRITICAL_STATUS_IDX,
    BAS_BATTERY_ENERGY_STATUS_IDX,
@@ -78,6 +79,9 @@ typedef enum {
    BAS_MANUFACTURE_NAME_IDX,
    BAS_MANUFACTURE_NUMBER_IDX,
    BAS_SERIAL_NUMBER_IDX,
+#ifdef SECOND_BATTERY
+   BAS_BATTERY_LEVEL_IDX2,
+#endif
    BAS_MAX_IDX,
 } bas_service_idx_e;
 
@@ -93,6 +97,9 @@ typedef enum {
 #define BAS_MANUFACTURE_NAME_BIT        (1<<BAS_MANUFACTURE_NAME_IDX)
 #define BAS_MANUFACTURE_NUMBER_BIT      (1<<BAS_MANUFACTURE_NUMBER_IDX)
 #define BAS_SERIAL_NUMBER_BIT           (1<<BAS_SERIAL_NUMBER_IDX)
+#ifdef SECOND_BATTERY
+#define BAS_BATTERY_LEVEL_BIT2          (1<<BAS_BATTERY_LEVEL_IDX2)
+#endif
 
 /******************************************************************************
  *                                Constants
@@ -102,7 +109,8 @@ typedef enum {
 #define BATTERY_SERVICE_VS_ID              WICED_NVRAM_VSID_START
 #define BATTERY_SERVICE_LOCAL_KEYS_VS_ID   ( BATTERY_SERVICE_VS_ID + 1 )
 #define BATTERY_SERVICE_PAIRED_KEYS_VS_ID  BATTERY_SERVICE_LOCAL_KEYS_VS_ID + 1
-#define TIMER_TICK_PERIOD_IN_SEC                    2    // get call back every 2 sec.
+#define BATTERY_SERVICE_BROADCAST_VS_ID    BATTERY_SERVICE_PAIRED_KEYS_VS_ID + 1
+#define TIMER_TICK_PERIOD_IN_SEC           2    // get call back every 2 sec.
 
 /******************************************************************************
  *                                Structures
@@ -121,10 +129,9 @@ typedef struct
     bas_char_t bas_char[BAS_MAX_IDX];
     BD_ADDR   remote_addr;              // remote peer device address
     uint16_t  conn_id;                  // connection ID referenced by the stack
-    uint8_t   flag_notify_sent;         // flag to check whether notifiation was sent
     uint8_t   current_char;             // current char.
     uint8_t   indication_sent;
-
+    uint8_t   broadcast;               // status of battery level broadcast
 }battery_server_state_t;
 
 #pragma pack(1)
@@ -139,11 +146,22 @@ typedef struct
 
 #pragma pack()
 
+#ifdef BATTERY_LEVEL_BROADCAST
+//Server Characteristic Configuration mode
+enum bas_scc_mode
+{
+    SCC_NONE      = 0x00,
+    SCC_BROADCAST = 0x01,
+};
+#endif
+
+
 /******************************************************************************
  *                             External data
  ******************************************************************************/
 extern uint8_t app_bas_battery_level[];
 extern uint8_t app_bas_battery_level_client_char_config[];
+extern uint8_t app_bas_battery_level_server_char_config[];
 extern uint8_t app_bas_battery_level_status_client_char_config[];
 extern uint8_t app_bas_estimated_service_date_client_char_config[];
 extern uint8_t app_bas_critical_status_client_char_config[];
@@ -155,6 +173,10 @@ extern uint8_t app_bas_info_client_char_config[];
 extern uint8_t app_bas_manuf_name_client_char_config[];
 extern uint8_t app_bas_manuf_num_client_char_config[];
 extern uint8_t app_bas_serial_num_client_char_config[];
+#ifdef SECOND_BATTERY
+extern uint8_t app_bas_battery_level2;
+extern uint8_t app_bas_battery_level_client_char_config2[];
+#endif
 
 extern battery_server_state_t battery_server_state;
 extern host_info_t battery_server_hostinfo;
@@ -173,5 +195,6 @@ wiced_result_t battery_server_management_cback(wiced_bt_management_evt_t event, 
 wiced_result_t app_stack_init();
 wiced_bt_gatt_status_t battery_server_gatt_cback(wiced_bt_gatt_evt_t event, wiced_bt_gatt_event_data_t *p_data);
 wiced_bt_gatt_status_t battery_server_gatts_conn_status_cb(wiced_bt_gatt_connection_status_t *p_status);
+void battery_server_set_advertisement_data();
 
 #endif // _BATTERY_SERVER_H_
