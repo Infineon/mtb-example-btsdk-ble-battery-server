@@ -33,10 +33,10 @@
 
 /** @file
  *
- * BLE Battery Service Server Sample Application
+ * Bluetooth LE Battery Service Server Sample Application
  *
  * Features demonstrated
- *  -Battery Service implementation. For details refer to BT SIG Battery Service Profile 1.0 spec.
+ *  -Battery Service implementation. For details refer to Bluetooth SIG Battery Service Profile 1.0 spec.
  *
  * On startup this demo:
  *  - Initializes the Battery Service GATT database
@@ -86,7 +86,7 @@ static void battery_server_handle_char_modification_cmd( uint8_t idx );
 #define MULTI_ADV_TX_POWER_MAX      MULTI_ADV_TX_POWER_MAX_INDEX
 #endif
 
-#if defined(CYW20735B1) || defined(CYW20835B1) || defined(CYW20819A1) || defined(CYW20719B2) || defined(CYW20721B2) || defined (WICEDX) || defined(CYW55572)
+#if defined(CYW20835B1) || defined(CYW20819A1) || defined(CYW20719B2) || defined(CYW20721B2) || defined (WICEDX) || defined(CYW55572)
 /* Adv parameter used for multi-adv*/
 wiced_bt_ble_multi_adv_params_t adv_param =
 #else
@@ -406,7 +406,7 @@ static void battery_server_send_broadcast()
 
         adv_param.adv_int_min = 480;
         adv_param.adv_int_max = 480;
-#if defined(CYW20735B1) || defined(CYW20835B1) || defined(CYW20819A1) || defined(CYW20719B2) || defined(CYW20721B2) || defined (WICEDX) || defined(CYW55572)
+#if defined(CYW20835B1) || defined(CYW20819A1) || defined(CYW20719B2) || defined(CYW20721B2) || defined (WICEDX) || defined(CYW55572)
     wiced_set_multi_advertisement_params(BATTERY_LEVEL_INSTANCE_ID, &adv_param);
 #else
     wiced_set_multi_advertisement_params(adv_param.adv_int_min, adv_param.adv_int_max, adv_param.adv_type,
@@ -949,7 +949,7 @@ static void battery_server_application_init()
 {
     wiced_bt_gatt_status_t gatt_status;
     wiced_result_t result;
-#if defined(CYW20706A2) || defined(CYW20719B0)
+#if defined(CYW20706A2)
     /* Initialize wiced app */
     wiced_bt_app_init();
 #endif
@@ -1419,7 +1419,7 @@ wiced_bt_gatt_status_t battery_server_gatts_write_handle(uint16_t handle, uint16
 /*
  *  Entry point to the application. Set device configuration and start BT
  *  stack initialization.  The actual application initialization will happen
- *  when stack reports that BT device is ready.
+ *  when stack reports that Bluetooth device is ready.
  */
 APPLICATION_START( )
 {
@@ -1433,7 +1433,7 @@ APPLICATION_START( )
 
     // Set to PUART to see traces on peripheral uart(puart)
     wiced_set_debug_uart( WICED_ROUTE_DEBUG_TO_PUART );
-#if ( defined(CYW20706A2) || defined(CYW20735B0) || defined(CYW20719B0) || defined(CYW43012C0) )
+#if ( defined(CYW20706A2) || defined(CYW43012C0) )
     wiced_hal_puart_select_uart_pads( WICED_PUART_RXD, WICED_PUART_TXD, 0, 0);
 #endif
 

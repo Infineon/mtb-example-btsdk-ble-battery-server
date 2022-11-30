@@ -41,7 +41,7 @@
 #define _BATTERY_APP_H_
 
 #include "wiced_gki.h"
-#if ( defined(CYW20706A2) || defined(CYW20719B1) || defined(CYW20719B0) || defined(CYW20721B1) || defined(CYW20735B0) || defined(CYW43012C0) )
+#if ( defined(CYW20706A2) || defined(CYW20719B1) || defined(CYW20721B1) || defined(CYW43012C0) )
  #include "wiced_bt_app_common.h"
  #include "wiced_bt_app_hal_common.h"
 #endif
