@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022, Cypress Semiconductor Corporation (an Infineon company) or
+ * Copyright 2016-2023, Cypress Semiconductor Corporation (an Infineon company) or
  * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
  *
  * This software, including source code, documentation and related
@@ -68,6 +68,11 @@
 #include "bt_types.h"
 
 #define TEST_HCI_CONTROL
+#if defined(CYW43022C1)
+#include "wiced_bt_printf.h"
+void debug_uart_set_baudrate(uint32_t baud_rate);
+#endif
+
 //#define ENABLE_HCI_TRACE 1 // configures HCI traces to be routed to the AIROC HCI interface
 #ifdef BATTERY_LEVEL_BROADCAST
 
@@ -120,7 +125,7 @@ const wiced_transport_cfg_t transport_cfg =
             .baud_rate =  HCI_UART_DEFAULT_BAUD
         },
     },
-#if BTSTACK_VER >= 0x03000001
+#if NEW_DYNAMIC_MEMORY_INCLUDED
     .heap_config =
     {
         .data_heap_size = 1024 * 4 + 1500 * 2,
@@ -1431,6 +1436,17 @@ APPLICATION_START( )
     // Set the debug uart as WICED_ROUTE_DEBUG_NONE to get rid of prints
     // wiced_set_debug_uart(WICED_ROUTE_DEBUG_NONE);
 
+#if defined(CYW43022C1)
+    // 43022 transport clock rate is 24Mhz for baud rates <= 1.5 Mbit/sec, and 48Mhz for baud rates > 1.5 Mbit/sec.
+    // HCI UART and Debug UART both use the Transport clock, so if the HCI UART rate is <= 1.5 Mbps, please do not set the Debug UART > 1.5 Mbps.
+    // The default Debug UART baud rate is 115200, and default HCI UART baud rate is 3Mbps
+    debug_uart_set_baudrate(115200);
+
+    // CYW943022M2BTBGA doesn't have GPIO pin for PUART.
+    // CYW943022M2BTBGA Debug UART Tx (WICED_GPIO_02) is connected to UART2_RX (ARD_D1) on PUART Level Translators of CYW9BTM2BASE1.
+    // We need to set to WICED_ROUTE_DEBUG_TO_DBG_UART to see traces on PUART of CYW9BTM2BASE1.
+    wiced_set_debug_uart( WICED_ROUTE_DEBUG_TO_DBG_UART );
+#else
     // Set to PUART to see traces on peripheral uart(puart)
     wiced_set_debug_uart( WICED_ROUTE_DEBUG_TO_PUART );
 #if ( defined(CYW20706A2) || defined(CYW43012C0) )
@@ -1447,7 +1463,8 @@ APPLICATION_START( )
     // be called with wiced_transport_cfg_t.wiced_tranport_data_handler_t callback present
     wiced_set_debug_uart(WICED_ROUTE_DEBUG_TO_WICED_UART);
 #endif
-#endif
+#endif //CYW43022C1
+#endif // WICED_BT_TRACE_ENABLE
 
 #ifdef BAS_1_1
     WICED_BT_TRACE( "\nBattery Service Server v1.1 Start\n\n" );
