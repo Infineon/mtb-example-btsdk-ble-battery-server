@@ -70,7 +70,7 @@
 #define TEST_HCI_CONTROL
 #if defined(CYW43022C1)
 #include "wiced_bt_printf.h"
-void debug_uart_set_baudrate(uint32_t baud_rate);
+#include "wiced_platform.h"
 #endif
 
 //#define ENABLE_HCI_TRACE 1 // configures HCI traces to be routed to the AIROC HCI interface
